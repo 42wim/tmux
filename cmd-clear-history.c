@@ -17,6 +17,8 @@
  */
 
 #include <sys/types.h>
+#include <stdlib.h>
+#include <malloc.h>
 
 #include "tmux.h"
 
@@ -46,7 +48,16 @@ cmd_clear_history_exec(struct cmd *self, struct cmd_q *cmdq)
 		return (CMD_RETURN_ERROR);
 	gd = wp->base.grid;
 
-	grid_move_lines(gd, 0, gd->hsize, gd->sy);
+	for (yy = 0; yy < gd->hsize+gd->sy; yy++) {
+		gl = &gd->linedata[yy];
+		free(gl->celldata);
+	}
+
+	free(gd->linedata);
+	malloc_trim(0);
+
+	gd->linedata = xcalloc(gd->sy, sizeof *gd->linedata);
+
 	gd->hsize = 0;
 
 	return (CMD_RETURN_NORMAL);

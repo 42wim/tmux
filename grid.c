@@ -113,6 +113,7 @@ grid_destroy(struct grid *gd)
 	free(gd->linedata);
 
 	free(gd);
+	malloc_trim(0);
 }
 
 /* Compare grids. */
