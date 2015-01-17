@@ -22,6 +22,9 @@
 #include <string.h>
 
 #include "tmux.h"
+#ifdef __GLIBC__
+# include <malloc.h>
+#endif
 
 /*
  * Grid data. This is the basic data structure that represents what is shown on
@@ -113,7 +116,9 @@ grid_destroy(struct grid *gd)
 	free(gd->linedata);
 
 	free(gd);
+# ifdef M_TRIM_THRESHOLD
 	malloc_trim(0);
+# endif
 }
 
 /* Compare grids. */

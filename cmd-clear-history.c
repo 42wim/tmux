@@ -17,8 +17,9 @@
  */
 
 #include <sys/types.h>
-#include <stdlib.h>
-#include <malloc.h>
+#ifdef __GLIBC__
+# include <malloc.h>
+#endif
 
 #include "tmux.h"
 
@@ -43,6 +44,8 @@ cmd_clear_history_exec(struct cmd *self, struct cmd_q *cmdq)
 	struct args		*args = self->args;
 	struct window_pane	*wp;
 	struct grid		*gd;
+	struct grid_line    *gl;
+	u_int            yy;
 
 	if (cmd_find_pane(cmdq, args_get(args, 't'), NULL, &wp) == NULL)
 		return (CMD_RETURN_ERROR);
@@ -54,10 +57,11 @@ cmd_clear_history_exec(struct cmd *self, struct cmd_q *cmdq)
 	}
 
 	free(gd->linedata);
+# ifdef M_TRIM_THRESHOLD
 	malloc_trim(0);
+# endif
 
 	gd->linedata = xcalloc(gd->sy, sizeof *gd->linedata);
-
 	gd->hsize = 0;
 
 	return (CMD_RETURN_NORMAL);
